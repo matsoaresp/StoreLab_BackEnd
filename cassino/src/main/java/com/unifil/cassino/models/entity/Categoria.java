@@ -14,6 +14,16 @@ import java.util.List;
 @ToString
 public class Categoria {
 
+    public Categoria(String descricao,
+                     String nome,
+                     Long id,
+                     List<Projeto> projetos) {
+        this.descricao = descricao;
+        this.nome = nome;
+        this.id = id;
+        this.projetos = projetos;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

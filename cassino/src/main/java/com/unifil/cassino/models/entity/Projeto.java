@@ -11,6 +11,26 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @ToString
 public class Projeto {
+    public Projeto(
+            Usuario usuario,
+            LocalDateTime dataCriacao,
+            String status,
+            String titulo,
+            Long id,
+            String descricao,
+            String objetivo,
+            String imagemCapa,
+            Categoria categoria) {
+        this.usuario = usuario;
+        this.dataCriacao = dataCriacao;
+        this.status = status;
+        this.titulo = titulo;
+        this.id = id;
+        this.descricao = descricao;
+        this.objetivo = objetivo;
+        this.imagemCapa = imagemCapa;
+        this.categoria = categoria;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
