@@ -15,10 +15,7 @@ public class Comentarios {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false, columnDefinition = "TEXT")
     private String texto;
-
     private LocalDateTime dataComentario;
 
     @ManyToOne

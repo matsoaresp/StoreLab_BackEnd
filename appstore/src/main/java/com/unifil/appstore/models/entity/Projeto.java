@@ -16,21 +16,11 @@ public class Projeto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false)
     private String titulo;
-
-    @Column(columnDefinition = "TEXT")
     private String descricao;
-
-    @Column(columnDefinition = "TEXT")
     private String objetivo;
-
     private String imagemCapa;
-
-    @Column(nullable = false)
     private String status;
-
     private LocalDateTime dataCriacao;
 
     @ManyToOne
