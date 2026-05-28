@@ -1,9 +1,9 @@
-package test.java.com.unifil.cassino;
+package com.unifil.appstore;
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-public class CassinoApplicationTests {
+public class AppStoreApplicationTests {
 
 	@Test
     public void contextLoads() {
