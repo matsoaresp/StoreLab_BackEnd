@@ -1,4 +1,5 @@
-package com.unifil.appstore.models.entity;
+package com.unifil.appstore.models.categoria;
+import com.unifil.appstore.models.projeto.Projeto;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.List;
