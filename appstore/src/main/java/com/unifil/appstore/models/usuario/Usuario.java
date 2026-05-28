@@ -1,4 +1,5 @@
-package com.unifil.appstore.models.entity;
+package com.unifil.appstore.models.usuario;
+import com.unifil.appstore.enums.person.PersonRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,9 +8,8 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@Entity
 @AllArgsConstructor
-@Table(name = "usuarios")
+@Entity
 public class Usuario {
 
     @Id
@@ -20,6 +20,7 @@ public class Usuario {
     private String email;
     private String senha;
     private LocalDateTime dataCriacao;
+    private PersonRole role;
     private boolean ativo;
 
 

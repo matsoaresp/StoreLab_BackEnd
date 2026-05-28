@@ -1,8 +1,6 @@
 package com.unifil.appstore.service;
 
-import com.unifil.appstore.models.entity.Usuario;
 import com.unifil.appstore.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,5 +13,5 @@ public class UsuarioService {
         this.repository = repository;
     }
 
-    private Usuario criarUsuario ()
+
 }
