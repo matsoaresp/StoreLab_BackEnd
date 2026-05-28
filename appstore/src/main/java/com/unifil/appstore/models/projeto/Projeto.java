@@ -1,4 +1,6 @@
-package com.unifil.appstore.models.entity;
+package com.unifil.appstore.models.projeto;
+import com.unifil.appstore.models.categoria.Categoria;
+import com.unifil.appstore.models.usuario.Usuario;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
