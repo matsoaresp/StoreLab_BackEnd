@@ -12,10 +12,10 @@ public class RequestUsuarioDto {
     private String nome;
 
     @NotBlank
-    private String matricula;
+    private String email;
 
     @NotBlank
-    private String email;
+    private String matricula;
 
     @NotBlank
     private String senha;
