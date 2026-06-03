@@ -1,4 +1,4 @@
-package com.unifil.appstore.dto;
+package com.unifil.appstore.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
