@@ -1,7 +1,6 @@
 package com.unifil.appstore.dto.response;
 
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,14 +9,15 @@ import lombok.Setter;
 public class ResponseUsuarioDto {
 
 
-    private String nome;
+    Long id;
+    private String email;
+    private String matricula;
 
-    public ResponseUsuarioDto(String nome, String matricula, String email) {
-        this.nome = nome;
+    public ResponseUsuarioDto(Long id, String matricula, String email) {
+        this.id = id;
         this.matricula = matricula;
         this.email = email;
     }
 
-    private String email;
-    private String matricula;
+
 }

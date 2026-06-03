@@ -51,15 +51,6 @@ public class UsuarioService {
         return repository.save(usuario);
     }
 
-    public Usuario criarVisitante(RequestUsuarioDto dto) {
-
-        Usuario usuario = criarUsuario(dto);
-        usuario.setDataCriacao(LocalDateTime.now());
-        usuario.setRole(PersonRole.VISITOR);
-        usuario.setAtivo(true);
-        return repository.save(usuario);
-    }
-
     public Usuario encontrarUsuario(Long id) throws Exception {
         return repository.findById(id).orElseThrow(() -> new Exception("Usuario não encontrado"));
     }
@@ -68,22 +59,23 @@ public class UsuarioService {
         return repository.findAll();
     }
 
-    public void deletarUsuario(Long id) {
-        repository.deleteById(id);
+    public void deletarUsuario(Long id) throws Exception {
+        Usuario usuario = encontrarUsuario(id);
+        repository.deleteById(usuario.getId());
     }
 
-    public Usuario atualizarDados(Long id, ResponseUsuarioDto dto) throws Exception {
+    public ResponseUsuarioDto atualizarDados(Long id, RequestUsuarioDto dto) throws Exception {
 
         Usuario usuario = encontrarUsuario(id);
-        if (dto.getEmail().equals(usuario.getEmail())) {
-            throw new Exception("E-mail já cadastrado");
+        if (!dto.getEmail().equals(usuario.getEmail()) &&
+            usuarioRepository.existsByEmail(dto.getEmail())){
+            throw new Exception("Email já Existe");
         }
 
         usuario.setEmail(dto.getEmail());
+        usuario.setMatricula(dto.getMatricula());
         Usuario updated = repository.save(usuario);
-        return updated;
+        return new ResponseUsuarioDto(updated.getId(), updated.getEmail(), updated.getMatricula());
 
     }
-
-
 }
