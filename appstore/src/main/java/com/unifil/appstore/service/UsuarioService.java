@@ -1,6 +1,7 @@
 package com.unifil.appstore.service;
 
 import com.unifil.appstore.dto.request.RequestUsuarioDto;
+import com.unifil.appstore.dto.response.ResponseUsuarioDto;
 import com.unifil.appstore.enums.person.PersonRole;
 import com.unifil.appstore.models.usuario.Usuario;
 import com.unifil.appstore.repository.UsuarioRepository;
@@ -13,8 +14,11 @@ import java.util.List;
 public class UsuarioService {
 
     private final UsuarioRepository repository;
-    public UsuarioService(UsuarioRepository repository) {
+    private final UsuarioRepository usuarioRepository;
+
+    public UsuarioService(UsuarioRepository repository, UsuarioRepository usuarioRepository) {
         this.repository = repository;
+        this.usuarioRepository = usuarioRepository;
     }
 
     public Usuario criarUsuario(RequestUsuarioDto dto) {
@@ -64,10 +68,22 @@ public class UsuarioService {
         return repository.findAll();
     }
 
-    public void deletarUsuario (Long id){
+    public void deletarUsuario(Long id) {
         repository.deleteById(id);
     }
 
+    public Usuario atualizarDados(Long id, ResponseUsuarioDto dto) throws Exception {
+
+        Usuario usuario = encontrarUsuario(id);
+        if (dto.getEmail().equals(usuario.getEmail())) {
+            throw new Exception("E-mail já cadastrado");
+        }
+
+        usuario.setEmail(dto.getEmail());
+        Usuario updated = repository.save(usuario);
+        return updated;
+
+    }
 
 
 }
