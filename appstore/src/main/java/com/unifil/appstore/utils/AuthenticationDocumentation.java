@@ -203,6 +203,6 @@ package com.unifil.appstore.utils;
  */
 
 public class AuthenticationDocumentation {
-    // Esta é apenas uma classe de documentação
+
 }
 
