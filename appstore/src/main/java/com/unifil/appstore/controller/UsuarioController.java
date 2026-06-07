@@ -1,5 +1,4 @@
 package com.unifil.appstore.controller;
-
 import com.unifil.appstore.dto.request.RequestUsuarioDto;
 import com.unifil.appstore.dto.response.ResponseUsuarioDto;
 import com.unifil.appstore.models.usuario.Usuario;
@@ -7,7 +6,6 @@ import com.unifil.appstore.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -58,6 +56,5 @@ public class UsuarioController {
     ResponseEntity<Void> deletarUsuario (@PathVariable Long id) throws Exception {
         service.deletarUsuario(id);
         return ResponseEntity.noContent().build();
-
     }
 }
