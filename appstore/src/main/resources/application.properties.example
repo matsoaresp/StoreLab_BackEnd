@@ -1,0 +1,15 @@
+spring.application.name=appstore
+spring.datasource.url=jdbc:postgresql://localhost:5432/StoreLab
+spring.datasource.username=postgres
+spring.datasource.password=YOUR_DB_PASSWORD_HERE
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+
+# JWT Configuration - Use variável de ambiente JWT_SECRET
+# Defina a variável de ambiente JWT_SECRET com uma chave segura de pelo menos 32 caracteres
+# Exemplo no Windows (PowerShell): setx JWT_SECRET "sua-chave-secreta-super-segura-aqui-minimo-32-caracteres"
+# Exemplo no Linux/Mac: export JWT_SECRET="sua-chave-secreta-super-segura-aqui-minimo-32-caracteres"
+api.security.token.secret=${JWT_SECRET:defaultSecretKeyForDevelopmentOnly123456789}
+api.security.token.expiration=24
+
