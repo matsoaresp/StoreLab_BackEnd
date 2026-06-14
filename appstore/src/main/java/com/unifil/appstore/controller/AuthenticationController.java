@@ -1,10 +1,8 @@
 package com.unifil.appstore.controller;
-
 import com.unifil.appstore.dto.request.RequestAuthenticationDto;
 import com.unifil.appstore.dto.request.RequestRegisterDto;
 import com.unifil.appstore.dto.response.ResponseAuthenticationDto;
 import com.unifil.appstore.dto.response.ResponseUsuarioDto;
-import com.unifil.appstore.models.usuario.Usuario;
 import com.unifil.appstore.service.auth.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

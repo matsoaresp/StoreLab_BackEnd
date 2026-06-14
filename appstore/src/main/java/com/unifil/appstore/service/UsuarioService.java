@@ -42,7 +42,6 @@ public class UsuarioService {
 
     public Usuario criarAluno(RequestUsuarioDto dto) {
         Usuario usuario = criarUsuario(dto);
-
         usuario.setRole(PersonRole.STUDENT);
         usuario.setAtivo(true);
         return repository.save(usuario);

@@ -18,13 +18,10 @@ public class AuthenticationService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
-
     @Autowired
     private TokenService tokenService;
-
     @Autowired
     private AuthenticationManager authenticationManager;
-
     @Autowired
     private PasswordEncoder passwordEncoder;
 
