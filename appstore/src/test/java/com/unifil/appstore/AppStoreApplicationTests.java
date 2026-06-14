@@ -6,7 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class AppStoreApplicationTests {
 
 	@Test
-    public void contextLoads() {
+	public void contextLoads() {
 	}
 
 }
