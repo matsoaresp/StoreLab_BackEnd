@@ -1,5 +1,4 @@
 package com.unifil.appstore.service;
-
 import com.unifil.appstore.dto.request.RequestUsuarioDto;
 import com.unifil.appstore.dto.response.ResponseUsuarioDto;
 import com.unifil.appstore.enums.person.PersonRole;
@@ -8,7 +7,6 @@ import com.unifil.appstore.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -32,20 +30,19 @@ public class UsuarioService {
             throw new RuntimeException("Email já existe");
         }
 
-        Usuario usuario = new Usuario(
-                dto.getNome(),
-                dto.getEmail(),
-                dto.getMatricula(),
-                passwordEncoder.encode(dto.getSenha())
-        );
-
+        Usuario usuario = new Usuario();
+        usuario.setNome(dto.getNome());
+        usuario.setEmail(dto.getEmail());
+        usuario.setRole(dto.getRole());
+        usuario.setSenha(passwordEncoder.encode(dto.getSenha()));
+        usuario.setDataCriacao(LocalDateTime.now());
         usuario.setLogin(gerarLogin(dto.getNome()));
         return repository.save(usuario);
     }
 
     public Usuario criarAluno(RequestUsuarioDto dto) {
         Usuario usuario = criarUsuario(dto);
-        usuario.setDataCriacao(LocalDateTime.now());
+
         usuario.setRole(PersonRole.STUDENT);
         usuario.setAtivo(true);
         return repository.save(usuario);
@@ -53,7 +50,6 @@ public class UsuarioService {
 
     public Usuario criarProfesssor(RequestUsuarioDto dto) {
         Usuario usuario = criarUsuario(dto);
-        usuario.setDataCriacao(LocalDateTime.now());
         usuario.setRole(PersonRole.ADMIN);
         usuario.setAtivo(true);
         return repository.save(usuario);
@@ -80,9 +76,8 @@ public class UsuarioService {
         }
 
         usuario.setEmail(dto.getEmail());
-        usuario.setMatricula(dto.getMatricula());
         Usuario updated = repository.save(usuario);
-        return new ResponseUsuarioDto(updated.getId(), updated.getEmail(), updated.getMatricula());
+        return new ResponseUsuarioDto(dto.getId(), dto.getNome(), dto.getEmail(), dto.getRole());
     }
 
     private String gerarLogin(String nome) {

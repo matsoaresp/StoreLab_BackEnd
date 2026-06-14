@@ -33,7 +33,8 @@ public class Usuario implements UserDetails {
     private PersonRole role;
     private boolean ativo;
 
-    public Usuario(String nome, String email, String matricula, String senha) {
+    public Usuario(Long id, String nome, String email, String matricula, String senha) {
+        this.id = id;
         this.nome = nome;
         this.email = email;
         this.matricula = matricula;
