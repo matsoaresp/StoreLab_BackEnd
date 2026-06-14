@@ -1,6 +1,5 @@
 package com.unifil.appstore.dto.request;
-
-import jakarta.validation.constraints.NotBlank;
+import com.unifil.appstore.enums.person.PersonRole;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,15 +7,8 @@ import lombok.Setter;
 @Setter
 public class RequestUsuarioDto {
 
-    @NotBlank
+    private Long id;
     private String nome;
-
-    @NotBlank
     private String email;
-
-    @NotBlank
-    private String matricula;
-
-    @NotBlank
-    private String senha;
+    private PersonRole role;
 }
