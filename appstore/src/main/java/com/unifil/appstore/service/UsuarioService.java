@@ -1,10 +1,12 @@
 package com.unifil.appstore.service;
 
+import com.unifil.appstore.dto.request.RequestUpdateUsuarioDto;
 import com.unifil.appstore.dto.request.RequestUsuarioDto;
 import com.unifil.appstore.dto.response.ResponseUsuarioDto;
 import com.unifil.appstore.enums.person.PersonRole;
 import com.unifil.appstore.models.usuario.Usuario;
 import com.unifil.appstore.repository.UsuarioRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -133,5 +135,38 @@ public class UsuarioService {
                 usuario.isAtivo(),
                 usuario.getDataCriacao()
         );
+    }
+
+    public ResponseUsuarioDto atualizar(Long id, RequestUpdateUsuarioDto dto) {
+        Usuario usuario = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        usuario.setNome(dto.getNome());
+        usuario.setEmail(dto.getEmail());
+
+
+        if (dto.getSenha() != null && !dto.getSenha().isBlank()) {
+            usuario.setSenha(passwordEncoder.encode(dto.getSenha()));
+        }
+
+        repository.save(usuario);
+
+        return new ResponseUsuarioDto(
+                usuario.getId(),
+                usuario.getNome(),
+                usuario.getEmail(),
+                usuario.getLogin(),
+                usuario.getRole(),
+                usuario.isAtivo(),
+                usuario.getDataCriacao()
+        );
+    }
+
+    @Transactional
+    public void deletar(Long id) {
+        Usuario usuario = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        repository.delete(usuario);
     }
 }

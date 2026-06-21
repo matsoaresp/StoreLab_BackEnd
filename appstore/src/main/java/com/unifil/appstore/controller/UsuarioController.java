@@ -1,8 +1,10 @@
 package com.unifil.appstore.controller;
 
+import com.unifil.appstore.dto.request.RequestUpdateUsuarioDto;
 import com.unifil.appstore.dto.request.RequestUsuarioDto;
 import com.unifil.appstore.dto.response.ResponseUsuarioDto;
 import com.unifil.appstore.service.UsuarioService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -60,16 +62,22 @@ public class UsuarioController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseUsuarioDto> atualizarUsuario(
-            @PathVariable Long id,
-            @RequestBody RequestUsuarioDto dto) {
-        ResponseUsuarioDto response = service.atualizarDados(id, dto);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<?> atualizarUsuario(@PathVariable Long id, @RequestBody @Valid RequestUpdateUsuarioDto dto) {
+        try {
+            var response = service.atualizar(id, dto);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarUsuario(@PathVariable Long id) {
-        service.deletarUsuario(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> deletarUsuario(@PathVariable Long id) {
+        try {
+            service.deletar(id);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }
