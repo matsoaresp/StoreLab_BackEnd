@@ -88,7 +88,7 @@ public class AuthenticationService {
 
     public ResponseUsuarioDto obterUsuarioDoToken(String token) {
         String login = tokenService.validarToken(token);
-        Usuario usuario = (Usuario) usuarioRepository.findByLogin(login);
+        Usuario usuario = usuarioRepository.findByLogin(login);
 
         if (usuario == null) throw new RuntimeException("Usuário não encontrado");
 
@@ -96,7 +96,10 @@ public class AuthenticationService {
                 usuario.getId(),
                 usuario.getNome(),
                 usuario.getEmail(),
-                usuario.getRole()
+                usuario.getLogin(),
+                usuario.getRole(),
+                usuario.isAtivo(),
+                usuario.getDataCriacao()
         );
     }
 

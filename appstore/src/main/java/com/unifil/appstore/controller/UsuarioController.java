@@ -1,59 +1,74 @@
 package com.unifil.appstore.controller;
+
 import com.unifil.appstore.dto.request.RequestUsuarioDto;
 import com.unifil.appstore.dto.response.ResponseUsuarioDto;
-import com.unifil.appstore.models.usuario.Usuario;
 import com.unifil.appstore.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
 @RequestMapping(value = "/usuario")
 public class UsuarioController {
 
-
     @Autowired
     private UsuarioService service;
 
-    @PostMapping(value = "/aluno")
-    public ResponseEntity<Usuario> criarAluno (
-            @RequestBody RequestUsuarioDto dto){
-        Usuario usuario = service.criarAluno(dto);
-        return ResponseEntity.status(201).body(usuario);
+    @PostMapping(value = "/alunos")
+    public ResponseEntity<ResponseUsuarioDto> criarAluno(@RequestBody RequestUsuarioDto dto){
+        ResponseUsuarioDto response = service.criarAluno(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PostMapping(value = "/professor")
-    public ResponseEntity<Usuario> criarProfessor (
-            @RequestBody RequestUsuarioDto dto){
-        Usuario usuario = service.criarProfesssor(dto);
-        return ResponseEntity.status(201).body(usuario);
+    @PostMapping(value = "/professores")
+    public ResponseEntity<ResponseUsuarioDto> criarProfessor(@RequestBody RequestUsuarioDto dto){
+        ResponseUsuarioDto response = service.criarProfessor(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Usuario> encontrarUsuario(
-            @PathVariable Long id) throws Exception {
-        Usuario usuario = service.encontrarUsuario(id);
-        return ResponseEntity.ok().body(usuario);
+    public ResponseEntity<ResponseUsuarioDto> encontrarUsuario(@PathVariable Long id) {
+        ResponseUsuarioDto response = service.encontrarUsuario(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/aluno/{id}")
+    public ResponseEntity<ResponseUsuarioDto> encontrarAluno(@PathVariable Long id) {
+        ResponseUsuarioDto response = service.encontrarAlunoPorId(id);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/todos")
-    ResponseEntity<List<Usuario>> ListarUsuarios (){
-        List<Usuario> usuario = service.listarUsuarios();
-        return ResponseEntity.ok().body(usuario);
+    public ResponseEntity<List<ResponseUsuarioDto>> listarUsuarios() {
+        List<ResponseUsuarioDto> response = service.listarUsuarios();
+        return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/atualizar/{id}")
-    ResponseEntity<ResponseUsuarioDto> atualizarUsuario (
+    @GetMapping("/alunos")
+    public ResponseEntity<List<ResponseUsuarioDto>> listarAlunos() {
+        List<ResponseUsuarioDto> response = service.listarAlunos();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/professores")
+    public ResponseEntity<List<ResponseUsuarioDto>> listarProfessores() {
+        List<ResponseUsuarioDto> response = service.listarProfessores();
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ResponseUsuarioDto> atualizarUsuario(
             @PathVariable Long id,
-            @RequestBody RequestUsuarioDto dto
-    ) throws Exception {
-        ResponseUsuarioDto usuario = service.atualizarDados(id, dto);
-        return ResponseEntity.ok().body(usuario);
+            @RequestBody RequestUsuarioDto dto) {
+        ResponseUsuarioDto response = service.atualizarDados(id, dto);
+        return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/delete/{id}")
-    ResponseEntity<Void> deletarUsuario (@PathVariable Long id) throws Exception {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletarUsuario(@PathVariable Long id) {
         service.deletarUsuario(id);
         return ResponseEntity.noContent().build();
     }
