@@ -1,4 +1,5 @@
 package com.unifil.appstore.controller;
+
 import com.unifil.appstore.dto.request.RequestAuthenticationDto;
 import com.unifil.appstore.dto.request.RequestRegisterDto;
 import com.unifil.appstore.dto.response.ResponseAuthenticationDto;
@@ -20,9 +21,13 @@ public class AuthenticationController {
     private AuthenticationService authenticationService;
 
     @PostMapping("/login")
-    public ResponseEntity<ResponseAuthenticationDto> login(@RequestBody @Valid RequestAuthenticationDto dto) {
-        ResponseAuthenticationDto response = authenticationService.autenticar(dto);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<?> login(@RequestBody @Valid RequestAuthenticationDto dto) {
+        try {
+            ResponseAuthenticationDto response = authenticationService.autenticar(dto);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        }
     }
 
     @PostMapping("/logout")
@@ -31,29 +36,40 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody @Valid RequestRegisterDto dto) {
-        authenticationService.registrar(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Usuário registrado com sucesso");
+    public ResponseEntity<?> register(@RequestBody @Valid RequestRegisterDto dto) {
+        try {
+            authenticationService.registrar(dto);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Usuário registrado com sucesso");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @GetMapping("/validar-token")
     public ResponseEntity<String> validarToken(@RequestHeader("Authorization") String token) {
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
-            authenticationService.validarToken(token);
-            return ResponseEntity.ok("Token válido");
+            try {
+                authenticationService.validarToken(token);
+                return ResponseEntity.ok("Token válido");
+            } catch (RuntimeException e) {
+                return ResponseEntity.badRequest().body("Token inválido");
+            }
         }
-        return ResponseEntity.badRequest().body("Token inválido");
+        return ResponseEntity.badRequest().body("Token ausente ou mal formatado");
     }
 
     @GetMapping("/info-usuario")
-    public ResponseEntity<ResponseUsuarioDto> obterInfoUsuario(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> obterInfoUsuario(@RequestHeader("Authorization") String token) {
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
-            ResponseUsuarioDto usuario = authenticationService.obterUsuarioDoToken(token);
-            return ResponseEntity.ok(usuario);
+            try {
+                ResponseUsuarioDto usuario = authenticationService.obterUsuarioDoToken(token);
+                return ResponseEntity.ok(usuario);
+            } catch (RuntimeException e) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
         }
         return ResponseEntity.badRequest().build();
     }
 }
-
