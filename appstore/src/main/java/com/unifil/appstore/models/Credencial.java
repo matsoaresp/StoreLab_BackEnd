@@ -1,7 +1,7 @@
-package com.unifil.appstore.models.usuario;
+package com.unifil.appstore.models;
+
 import com.unifil.appstore.enums.person.PersonRole;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,36 +10,33 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
+@Entity
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-@Entity
-public class Usuario implements UserDetails {
+@AllArgsConstructor
+@Table(name = "tb_credencial")
+public class Credencial implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String login;
-    private String nome;
-    private String email;
-    private String matricula;
-    private String senha;
-    private LocalDateTime dataCriacao;
-    private PersonRole role;
-    private boolean ativo;
 
-    public Usuario(Long id, String nome, String email, String matricula, String senha) {
-        this.id = id;
-        this.nome = nome;
-        this.email = email;
-        this.matricula = matricula;
-        this.senha = senha;
-    }
+    @Column(unique = true, nullable = false)
+    private String login;
+
+    @Column(nullable = false)
+    private String senha;
+
+    @Enumerated(EnumType.STRING)
+    private PersonRole role;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id", unique = true, nullable = false)
+    private Usuario usuario;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -71,7 +68,7 @@ public class Usuario implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return this.ativo;
+        return this.usuario != null && this.usuario.isAtivo();
     }
 
     @Override
@@ -81,6 +78,6 @@ public class Usuario implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return this.ativo;
+        return this.usuario != null && this.usuario.isAtivo();
     }
 }

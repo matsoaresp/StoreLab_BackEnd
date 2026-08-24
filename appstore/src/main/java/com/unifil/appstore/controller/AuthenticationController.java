@@ -5,16 +5,15 @@ import com.unifil.appstore.dto.request.RequestRegisterDto;
 import com.unifil.appstore.dto.response.ResponseAuthenticationDto;
 import com.unifil.appstore.dto.response.ResponseUsuarioDto;
 import com.unifil.appstore.service.auth.AuthenticationService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
-
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin(origins = "*", maxAge = 3600)
+@CrossOrigin(origins = "${app.cors.allowed-origin}", maxAge = 3600)
 public class AuthenticationController {
 
     @Autowired
@@ -26,13 +25,23 @@ public class AuthenticationController {
             ResponseAuthenticationDto response = authenticationService.autenticar(dto);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login ou senha inválidos");
         }
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<String> logout() {
-        return ResponseEntity.ok("Logout realizado com sucesso");
+    public ResponseEntity<String> logout(@RequestHeader("Authorization") String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.badRequest().body("Token ausente ou mal formatado");
+        }
+
+        String token = authHeader.substring(7);
+        try {
+            authenticationService.logout(token);
+            return ResponseEntity.ok("Logout realizado com sucesso");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido");
+        }
     }
 
     @PostMapping("/register")
