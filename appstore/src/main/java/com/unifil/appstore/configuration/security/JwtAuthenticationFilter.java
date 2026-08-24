@@ -1,7 +1,8 @@
 package com.unifil.appstore.configuration.security;
 
+import com.unifil.appstore.repository.CredencialRepository;
+import com.unifil.appstore.repository.TokensRepository;
 import com.unifil.appstore.service.auth.TokenService;
-import com.unifil.appstore.repository.UsuarioRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,7 +22,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private TokenService tokenService;
 
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    private CredencialRepository credencialRepository;
+
+    @Autowired
+    private TokensRepository tokensRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -34,12 +38,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             try {
                 String login = tokenService.validarToken(token);
-                var usuario = usuarioRepository.findByLogin(login);
+
+                boolean revogado = tokensRepository.findByToken(token)
+                        .map(t -> t.isRevogado())
+                        .orElse(true);
+
+                if (revogado) {
+                    throw new RuntimeException("Token revogado ou não reconhecido");
+                }
+
+                var credencial = credencialRepository.findByLogin(login)
+                        .orElseThrow(() -> new RuntimeException("Credencial não encontrada"));
 
                 var autenticacao = new UsernamePasswordAuthenticationToken(
-                        usuario,
-                        null,
-                        usuario.getAuthorities()
+                        credencial, null, credencial.getAuthorities()
                 );
 
                 SecurityContextHolder.getContext().setAuthentication(autenticacao);

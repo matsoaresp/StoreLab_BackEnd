@@ -4,7 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.unifil.appstore.models.usuario.Usuario;
+import com.unifil.appstore.models.Credencial;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -21,17 +21,17 @@ public class TokenService {
     @Value("${api.security.token.expiration}")
     private Long expiration;
 
-    public String gerarToken(Usuario usuario) {
+    public String gerarToken(Credencial credencial) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
 
             return JWT.create()
                     .withIssuer("appstore")
-                    .withSubject(usuario.getLogin())
-                    .withClaim("id", usuario.getId())
-                    .withClaim("nome", usuario.getNome())
-                    .withClaim("email", usuario.getEmail())
-                    .withClaim("role", usuario.getRole().toString())
+                    .withSubject(credencial.getLogin())
+                    .withClaim("id", credencial.getUsuario().getId())
+                    .withClaim("nome", credencial.getUsuario().getNome())
+                    .withClaim("email", credencial.getUsuario().getEmail())
+                    .withClaim("role", credencial.getRole().toString())
                     .withExpiresAt(gerarDataExpiracao())
                     .sign(algorithm);
         } catch (JWTCreationException exception) {
@@ -88,4 +88,3 @@ public class TokenService {
                 .toInstant();
     }
 }
-
