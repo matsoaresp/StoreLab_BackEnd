@@ -1,7 +1,7 @@
 package com.unifil.appstore.controller;
 
-import com.unifil.appstore.dto.request.RequestUpdateUsuarioDto;
 import com.unifil.appstore.dto.request.RequestUsuarioDto;
+import com.unifil.appstore.dto.request.RequestUpdateUsuarioDto;
 import com.unifil.appstore.dto.response.ResponseUsuarioDto;
 import com.unifil.appstore.service.UsuarioService;
 import jakarta.validation.Valid;
@@ -20,13 +20,13 @@ public class UsuarioController {
     private UsuarioService service;
 
     @PostMapping(value = "/alunos")
-    public ResponseEntity<ResponseUsuarioDto> criarAluno(@RequestBody RequestUsuarioDto dto){
+    public ResponseEntity<ResponseUsuarioDto> criarAluno(@RequestBody @Valid RequestUsuarioDto dto) {
         ResponseUsuarioDto response = service.criarAluno(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping(value = "/professores")
-    public ResponseEntity<ResponseUsuarioDto> criarProfessor(@RequestBody RequestUsuarioDto dto){
+    public ResponseEntity<ResponseUsuarioDto> criarProfessor(@RequestBody @Valid RequestUsuarioDto dto) {
         ResponseUsuarioDto response = service.criarProfessor(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -39,7 +39,13 @@ public class UsuarioController {
 
     @GetMapping("/aluno/{id}")
     public ResponseEntity<ResponseUsuarioDto> encontrarAluno(@PathVariable Long id) {
-        ResponseUsuarioDto response = service.encontrarAlunoPorId(id);
+        ResponseUsuarioDto response = service.encontrarAluno(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/professor/{id}")
+    public ResponseEntity<ResponseUsuarioDto> encontrarProfessor(@PathVariable Long id) {
+        ResponseUsuarioDto response = service.encontrarProfessor(id);
         return ResponseEntity.ok(response);
     }
 
@@ -62,22 +68,20 @@ public class UsuarioController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> atualizarUsuario(@PathVariable Long id, @RequestBody @Valid RequestUpdateUsuarioDto dto) {
-        try {
-            var response = service.atualizar(id, dto);
-            return ResponseEntity.ok(response);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<ResponseUsuarioDto> atualizarUsuario(@PathVariable Long id, @RequestBody @Valid RequestUpdateUsuarioDto dto) {
+        ResponseUsuarioDto response = service.atualizarUsuario(id, dto);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deletarUsuario(@PathVariable Long id) {
-        try {
-            service.deletar(id);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<Void> removerUsuario(@PathVariable Long id) {
+        service.removerUsuario(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/inativar")
+    public ResponseEntity<Integer> inativarUsuario(@PathVariable Long id) {
+        int result = service.inativarUsuario(id);
+        return ResponseEntity.ok(result);
     }
 }

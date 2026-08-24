@@ -19,7 +19,4 @@ public class RequestUpdateUsuarioDto {
     @NotBlank(message = "Email é obrigatório")
     @Email(message = "Formato de email inválido")
     private String email;
-
-
-    private String senha;
 }

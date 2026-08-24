@@ -15,6 +15,9 @@ import lombok.Setter;
 @AllArgsConstructor
 public class RequestRegisterDto {
 
+    @NotBlank(message = "Login é obrigatório")
+    private String login;
+
     @NotBlank(message = "Nome é obrigatório")
     private String nome;
 
@@ -27,5 +30,4 @@ public class RequestRegisterDto {
 
     @NotNull(message = "O tipo de usuário é obrigatório")
     private PersonRole role;
-
 }

@@ -4,7 +4,9 @@ import com.unifil.appstore.dto.request.RequestUpdateUsuarioDto;
 import com.unifil.appstore.dto.request.RequestUsuarioDto;
 import com.unifil.appstore.dto.response.ResponseUsuarioDto;
 import com.unifil.appstore.enums.person.PersonRole;
-import com.unifil.appstore.models.usuario.Usuario;
+import com.unifil.appstore.models.Credencial;
+import com.unifil.appstore.models.Usuario;
+import com.unifil.appstore.repository.CredencialRepository;
 import com.unifil.appstore.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,16 +24,27 @@ import java.util.stream.Collectors;
 public class UsuarioService {
 
     private final UsuarioRepository repository;
+    private final CredencialRepository credencialRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UsuarioService(UsuarioRepository repository, PasswordEncoder passwordEncoder) {
+    public UsuarioService(UsuarioRepository repository, CredencialRepository credencialRepository, PasswordEncoder passwordEncoder) {
         this.repository = repository;
+        this.credencialRepository = credencialRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
-    // Método auxiliar privado: Monta o objeto em memória sem salvar (evita duplo save)
-    private Usuario construirUsuarioBase(RequestUsuarioDto dto) {
+    @Transactional
+    public ResponseUsuarioDto criarAluno(RequestUsuarioDto dto) {
+        return criarUsuario(dto, PersonRole.STUDENT);
+    }
+
+    @Transactional
+    public ResponseUsuarioDto criarProfessor(RequestUsuarioDto dto) {
+        return criarUsuario(dto, PersonRole.ADMIN);
+    }
+
+    private ResponseUsuarioDto criarUsuario(RequestUsuarioDto dto, PersonRole role) {
         if (repository.existsByEmail(dto.getEmail())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email já existe");
         }
@@ -39,134 +52,105 @@ public class UsuarioService {
         Usuario usuario = new Usuario();
         usuario.setNome(dto.getNome());
         usuario.setEmail(dto.getEmail());
-        usuario.setSenha(passwordEncoder.encode(dto.getSenha()));
         usuario.setDataCriacao(LocalDateTime.now());
-        usuario.setLogin(gerarLogin(dto.getNome()));
         usuario.setAtivo(true);
-        return usuario;
-    }
+        repository.save(usuario);
 
-    public ResponseUsuarioDto criarAluno(RequestUsuarioDto dto) {
-        Usuario usuario = construirUsuarioBase(dto);
-        usuario.setRole(PersonRole.STUDENT);
-        return converterParaDto(repository.save(usuario));
-    }
+        Credencial credencial = new Credencial();
+        credencial.setLogin(gerarLogin(dto.getNome()));
+        credencial.setSenha(passwordEncoder.encode(dto.getSenha()));
+        credencial.setRole(role);
+        credencial.setUsuario(usuario);
+        credencialRepository.save(credencial);
 
-    public ResponseUsuarioDto criarProfessor(RequestUsuarioDto dto) {
-        Usuario usuario = construirUsuarioBase(dto);
-        usuario.setRole(PersonRole.ADMIN);
-        return converterParaDto(repository.save(usuario));
-    }
-
-    // Busca usuário genérico (usado internamente)
-    private Usuario buscarEntityPorId(Long id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
+        return converterParaDto(usuario, credencial);
     }
 
     public ResponseUsuarioDto encontrarUsuario(Long id) {
-        return converterParaDto(buscarEntityPorId(id));
+        Usuario usuario = repository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
+        return converterParaDto(usuario, usuario.getCredencial());
     }
 
-    public ResponseUsuarioDto encontrarAlunoPorId(Long id) {
-        Usuario aluno = repository.findByIdAndRole(id, PersonRole.STUDENT)
+    public ResponseUsuarioDto encontrarAluno(Long id) {
+        Credencial credencial = credencialRepository.findByUsuario_IdAndRole(id, PersonRole.STUDENT)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Aluno não encontrado"));
-        return converterParaDto(aluno);
+        return converterParaDto(credencial.getUsuario(), credencial);
+    }
+
+    public ResponseUsuarioDto encontrarProfessor(Long id) {
+        Credencial credencial = credencialRepository.findByUsuario_IdAndRole(id, PersonRole.ADMIN)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Professor não encontrado"));
+        return converterParaDto(credencial.getUsuario(), credencial);
     }
 
     public List<ResponseUsuarioDto> listarUsuarios() {
         return repository.findAll().stream()
-                .map(this::converterParaDto)
+                .map(usuario -> converterParaDto(usuario, usuario.getCredencial()))
                 .collect(Collectors.toList());
     }
 
     public List<ResponseUsuarioDto> listarAlunos() {
-        return repository.findAllByRole(PersonRole.STUDENT).stream()
-                .map(this::converterParaDto)
+        return credencialRepository.findAllByRole(PersonRole.STUDENT).stream()
+                .map(credencial -> converterParaDto(credencial.getUsuario(), credencial))
                 .collect(Collectors.toList());
     }
 
     public List<ResponseUsuarioDto> listarProfessores() {
-        return repository.findAllByRole(PersonRole.ADMIN).stream()
-                .map(this::converterParaDto)
+        return credencialRepository.findAllByRole(PersonRole.ADMIN).stream()
+                .map(credencial -> converterParaDto(credencial.getUsuario(), credencial))
                 .collect(Collectors.toList());
     }
 
-    public ResponseUsuarioDto atualizarDados(Long id, RequestUsuarioDto dto) {
-        Usuario usuario = buscarEntityPorId(id);
+    @Transactional
+    public ResponseUsuarioDto atualizarUsuario(Long id, RequestUpdateUsuarioDto dto) {
+        Usuario usuario = repository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
 
         if (!dto.getEmail().equals(usuario.getEmail()) && repository.existsByEmail(dto.getEmail())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email já está em uso por outra conta");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email já existe");
         }
 
         usuario.setNome(dto.getNome());
         usuario.setEmail(dto.getEmail());
+        repository.save(usuario);
 
-
-        if(dto.getRole() != null) {
-            usuario.setRole(dto.getRole());
-        }
-
-        Usuario updated = repository.save(usuario);
-        return converterParaDto(updated);
+        return converterParaDto(usuario, usuario.getCredencial());
     }
 
-    public void deletarUsuario(Long id) {
-        Usuario usuario = buscarEntityPorId(id);
+    @Transactional
+    public void removerUsuario(Long id) {
+        Usuario usuario = repository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
         repository.delete(usuario);
+    }
+
+    @Transactional
+    public int inativarUsuario(Long id) {
+        Usuario usuario = repository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
+        usuario.setAtivo(false);
+        repository.save(usuario);
+        return 1;
+    }
+
+    private ResponseUsuarioDto converterParaDto(Usuario usuario, Credencial credencial) {
+        return new ResponseUsuarioDto(
+                usuario.getId(),
+                usuario.getNome(),
+                usuario.getEmail(),
+                credencial.getLogin(),
+                credencial.getRole(),
+                usuario.isAtivo(),
+                usuario.getDataCriacao()
+        );
     }
 
     private String gerarLogin(String nome) {
         String login = nome.toLowerCase().replaceAll("\\s+", "");
-        if (repository.existsByLogin(login)) {
+        if (credencialRepository.existsByLogin(login)) {
             login = login + "_" + UUID.randomUUID().toString().substring(0, 4);
         }
         return login;
-    }
-
-
-    private ResponseUsuarioDto converterParaDto(Usuario usuario) {
-        return new ResponseUsuarioDto(
-                usuario.getId(),
-                usuario.getNome(),
-                usuario.getEmail(),
-                usuario.getLogin(),
-                usuario.getRole(),
-                usuario.isAtivo(),
-                usuario.getDataCriacao()
-        );
-    }
-
-    public ResponseUsuarioDto atualizar(Long id, RequestUpdateUsuarioDto dto) {
-        Usuario usuario = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-
-        usuario.setNome(dto.getNome());
-        usuario.setEmail(dto.getEmail());
-
-
-        if (dto.getSenha() != null && !dto.getSenha().isBlank()) {
-            usuario.setSenha(passwordEncoder.encode(dto.getSenha()));
-        }
-
-        repository.save(usuario);
-
-        return new ResponseUsuarioDto(
-                usuario.getId(),
-                usuario.getNome(),
-                usuario.getEmail(),
-                usuario.getLogin(),
-                usuario.getRole(),
-                usuario.isAtivo(),
-                usuario.getDataCriacao()
-        );
-    }
-
-    @Transactional
-    public void deletar(Long id) {
-        Usuario usuario = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-
-        repository.delete(usuario);
     }
 }
