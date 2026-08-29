@@ -15,10 +15,10 @@ import java.time.ZoneId;
 @Service
 public class TokenService {
 
-    @Value("${api.security.token.secret}")
+    @Value("${JWT_SECRET}")
     private String secret;
 
-    @Value("${api.security.token.expiration}")
+    @Value("${API_SECURITY_TOKEN_EXPIRATION}")
     private Long expiration;
 
     public String gerarToken(Credencial credencial) {
@@ -53,33 +53,6 @@ public class TokenService {
         }
     }
 
-    public Long obterIdDirecaoToken(String token) {
-        try {
-            Algorithm algorithm = Algorithm.HMAC256(secret);
-            return JWT.require(algorithm)
-                    .withIssuer("appstore")
-                    .build()
-                    .verify(token)
-                    .getClaim("id")
-                    .asLong();
-        } catch (JWTVerificationException exception) {
-            throw new RuntimeException("Token JWT inválido ou expirado", exception);
-        }
-    }
-
-    public String obterRoleDirecaoToken(String token) {
-        try {
-            Algorithm algorithm = Algorithm.HMAC256(secret);
-            return JWT.require(algorithm)
-                    .withIssuer("appstore")
-                    .build()
-                    .verify(token)
-                    .getClaim("role")
-                    .asString();
-        } catch (JWTVerificationException exception) {
-            throw new RuntimeException("Token JWT inválido ou expirado", exception);
-        }
-    }
 
     private Instant gerarDataExpiracao() {
         return LocalDateTime.now(ZoneId.of("America/Sao_Paulo"))

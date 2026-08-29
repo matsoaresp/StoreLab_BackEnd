@@ -139,16 +139,4 @@ public class AuthenticationService {
                 usuario.getDataCriacao()
         );
     }
-
-    public String obterLoginDoToken(String token) {
-        return tokenService.validarToken(token);
-    }
-
-    public Long obterIdDoToken(String token) {
-        return tokenService.obterIdDirecaoToken(token);
-    }
-
-    public String obterRoleDoToken(String token) {
-        return tokenService.obterRoleDirecaoToken(token);
-    }
 }

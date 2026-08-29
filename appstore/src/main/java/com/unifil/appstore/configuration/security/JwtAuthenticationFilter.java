@@ -43,22 +43,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         .map(t -> t.isRevogado())
                         .orElse(true);
 
-                if (revogado) {
-                    throw new RuntimeException("Token revogado ou não reconhecido");
+                if (!revogado) {
+                    var credencial = credencialRepository.findByLogin(login).orElse(null);
+                    if (credencial != null) {
+                        var autenticacao = new UsernamePasswordAuthenticationToken(
+                                credencial, null, credencial.getAuthorities()
+                        );
+                        SecurityContextHolder.getContext().setAuthentication(autenticacao);
+                    }
                 }
-
-                var credencial = credencialRepository.findByLogin(login)
-                        .orElseThrow(() -> new RuntimeException("Credencial não encontrada"));
-
-                var autenticacao = new UsernamePasswordAuthenticationToken(
-                        credencial, null, credencial.getAuthorities()
-                );
-
-                SecurityContextHolder.getContext().setAuthentication(autenticacao);
             } catch (RuntimeException e) {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("Token inválido ou expirado");
-                return;
+
+                SecurityContextHolder.clearContext();
             }
         }
 
